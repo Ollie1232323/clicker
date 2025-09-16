@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Clicker Game!!!</title>
+  <style>
+    body {
+      text-align: center;
+      background-color: lightblue;
+      font-family: Comic Sans MS, cursive, sans-serif;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: purple;
+    }
+
+    #clickBtn {
+      padding: 20px 40px;
+      font-size: 20px;
+      background-color: hotpink;
+      border: 3px solid black;
+      cursor: pointer;
+    }
+
+    #score {
+      font-size: 30px;
+      color: green;
+      margin-top: 20px;
+    }
+
+    #footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: darkgray;
+    }
+  </style>
+</head>
+<body>
+
+  <h1> CLICK THE BUTTON! </h1>
+
+  <button id="clickBtn">Click me!!!</button>
+
+  <div id="score">Score: 0</div>
+
+  <div id="footer">Made by ollie </div>
+
+  <script>
+    let score = 0;
+    const btn = document.getElementById("clickBtn");
+    const scoreDisplay = document.getElementById("score");
+
+    btn.onclick = function() {
+      score++;
+      scoreDisplay.textContent = "Score: " + score;
+
+      if (score === 10) {
+        alert("WOW! 10 CLICKS! ");
+      } else if (score === 50) {
+        alert("YOU'RE A LEGEND ");
+      }
+    };
+  </script>
+
+</body>
+</html>
