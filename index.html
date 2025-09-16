@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ultimate Clicker Game 2.0</title>
+  <title>Ultimate Clicker Game 3.0</title>
   <style>
     body {
       text-align: center;
@@ -77,6 +77,7 @@
       font-size: 22px;
       height: 30px;
       font-weight: bold;
+      min-height: 30px;
     }
 
     #achievements {
@@ -124,18 +125,57 @@
       display: none;
       border-top: 2px dashed #888;
       padding-top: 20px;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    #codeEditPanel {
+      margin: 20px auto;
+      max-width: 400px;
+      display: none;
+      border: 2px dashed #4b0082;
+      padding: 15px;
+      border-radius: 12px;
+      background: #f9f4ff;
+    }
+
+    body.dark #codeEditPanel {
+      background: #3a2a4d;
+      border-color: #bb86fc;
     }
 
     .admin-input {
-      margin: 10px;
+      margin: 10px 0;
       padding: 8px;
       font-size: 16px;
-      width: 100px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
     .admin-label {
       font-weight: bold;
       margin-right: 10px;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .small-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      margin-top: 6px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: #4b0082;
+      color: white;
+      box-shadow: 0 3px #2e0055;
+      transition: background-color 0.3s;
+    }
+
+    .small-btn:hover {
+      background-color: #6a0dad;
     }
   </style>
 </head>
@@ -165,7 +205,7 @@
   <!-- Admin Login -->
   <div id="adminPrompt">
     <p style="margin-top:40px;">Enter Admin Code:</p>
-    <input id="adminCodeInput" class="admin-input" placeholder="Enter code..." />
+    <input id="adminCodeInput" class="admin-input" placeholder="Enter code..." autocomplete="off" />
     <button class="upgrade" onclick="checkAdminCode()">Enter</button>
   </div>
 
@@ -175,25 +215,25 @@
     <div>
       <label class="admin-label">Clicks Per Click:</label>
       <input id="clickPowerInput" class="admin-input" type="number" value="1" min="1" />
-      <button class="upgrade" onclick="setClickPower()">Set</button>
+      <button class="small-btn" onclick="setClickPower()">Set</button>
     </div>
     <div>
       <label class="admin-label">Auto Clicks Per Second:</label>
       <input id="autoCpsInput" class="admin-input" type="number" value="1" min="1" />
-      <button class="upgrade" onclick="setAutoClickRate()">Set</button>
+      <button class="small-btn" onclick="setAutoClickRate()">Set</button>
     </div>
     <div>
       <label class="admin-label">Add Score:</label>
       <input id="addScoreInput" class="admin-input" type="number" value="0" />
-      <button class="upgrade" onclick="addScore()">Add</button>
+      <button class="small-btn" onclick="addScore()">Add</button>
     </div>
     <div>
       <label class="admin-label">Reset Game:</label>
-      <button class="upgrade" onclick="resetGame()">⚠️ Reset</button>
+      <button class="small-btn" style="background:#d32f2f; box-shadow:0 3px #7a0000;" onclick="resetGame()">⚠️ Reset</button>
     </div>
     <div>
       <label class="admin-label">Toggle Achievements:</label>
-      <button class="upgrade" onclick="toggleAchievements()">Toggle Achievements</button>
+      <button class="small-btn" onclick="toggleAchievements()">Toggle Achievements</button>
     </div>
     <div>
       <label class="admin-label">Edit Upgrade Costs:</label><br/>
@@ -201,321 +241,43 @@
       <input id="costMultiplier2Input" class="admin-input" type="number" value="100" min="1" /> Mult ×2<br/>
       <input id="costMultiplier5Input" class="admin-input" type="number" value="500" min="1" /> Mult ×5<br/>
       <input id="costAutoSpeedInput" class="admin-input" type="number" value="200" min="1" /> Auto Speed<br/>
-      <button class="upgrade" onclick="updateUpgradeCosts()">Update Costs</button>
+      <button class="small-btn" onclick="updateUpgradeCosts()">Update Costs</button>
+    </div>
+
+    <!-- Button to show/hide advanced code editor -->
+    <div style="margin-top: 30px;">
+      <button class="small-btn" onclick="toggleCodeEditPanel()">Advanced Code Panel</button>
+    </div>
+  </div>
+
+  <!-- Code Edit Panel -->
+  <div id="codeEditPanel">
+    <h3>🧩 Code Edit Panel</h3>
+    <p>Paste or type the special code below and click Apply:</p>
+    <textarea id="specialCodeInput" rows="3" style="width: 100%; font-size: 16px;" placeholder="Enter special code here..."></textarea>
+    <button class="small-btn" style="margin-top: 10px;" onclick="applySpecialCode()">Apply Code</button>
+    <p style="margin-top: 10px; font-size: 14px; color: #555;">
+      Special Code: <code>281212</code><br/>
+      (Unlocks advanced admin controls)
+    </p>
+
+    <div id="advancedAdminControls" style="display:none; margin-top: 20px; border-top: 1px solid #bbb; padding-top: 10px;">
+      <h4>🔧 Advanced Admin Controls</h4>
+      <label class="admin-label">Max Multiplier Limit:</label>
+      <input id="maxMultiplierLimitInput" class="admin-input" type="number" value="10" min="1" />
+      <button class="small-btn" onclick="setMaxMultiplierLimit()">Set Max Multiplier</button>
+
+      <label class="admin-label">Max Auto Click Speed (clicks/sec):</label>
+      <input id="maxAutoClickSpeedInput" class="admin-input" type="number" value="20" min="1" />
+      <button class="small-btn" onclick="setMaxAutoClickSpeed()">Set Max Auto Speed</button>
+
+      <label class="admin-label">Instant Add Score:</label>
+      <input id="instantAddScoreInput" class="admin-input" type="number" value="0" />
+      <button class="small-btn" onclick="instantAddScore()">Add Instantly</button>
     </div>
   </div>
 
   <div id="footer">Made by Ollie 🚀</div>
 
   <script>
-    // ==== Game state =====
-    let score = 0;
-    let multiplier = 1;
-    let clickPower = 1;
-    let autoClicker = false;
-    let autoClickRate = 1; // times per second
-    let autoClickInterval = null;
-
-    // Upgrade costs
-    let cost = {
-      autoClicker: 50,
-      multiplier2: 100,
-      multiplier5: 500,
-      autoSpeed: 200
-    };
-
-    // Achievements
-    const achievementsList = [
-      { id: 'ach1', name: '10 Clicks', condition: s => s >= 10 },
-      { id: 'ach2', name: '100 Clicks', condition: s => s >= 100 },
-      { id: 'ach3', name: '500 Clicks', condition: s => s >= 500 },
-      { id: 'ach4', name: '1000 Clicks', condition: s => s >= 1000 },
-    ];
-    let achievementsUnlocked = {};
-
-    let achievementsEnabled = true;
-
-    // Elements
-    const btn = document.getElementById("clickBtn");
-    const scoreDisplay = document.getElementById("score");
-    const msgDisplay = document.getElementById("messages");
-    const autoClickerBtn = document.getElementById("autoClickerBtn");
-    const multiplier2Btn = document.getElementById("multiplier2Btn");
-    const multiplier5Btn = document.getElementById("multiplier5Btn");
-    const autoSpeedBtn = document.getElementById("autoSpeedBtn");
-
-    const achContainer = document.getElementById("achievements");
-    const themeToggle = document.getElementById("themeToggle");
-
-    // ==== Save / Load =====
-    function saveGame() {
-      const data = {
-        score,
-        multiplier,
-        clickPower,
-        autoClicker,
-        autoClickRate,
-        achievementsUnlocked,
-        cost
-      };
-      localStorage.setItem('clickerGameSave', JSON.stringify(data));
-    }
-
-    function loadGame() {
-      const data = localStorage.getItem('clickerGameSave');
-      if (data) {
-        try {
-          const obj = JSON.parse(data);
-          score = obj.score || 0;
-          multiplier = obj.multiplier || 1;
-          clickPower = obj.clickPower || 1;
-          autoClicker = obj.autoClicker || false;
-          autoClickRate = obj.autoClickRate || 1;
-          achievementsUnlocked = obj.achievementsUnlocked || {};
-          if (obj.cost) cost = obj.cost;
-        } catch(e) {
-          console.error("Failed to load game:", e);
-        }
-      }
-    }
-
-    // ==== Helpers =====
-    function updateScoreDisplay() {
-      scoreDisplay.textContent = `Score: ${score}`;
-    }
-
-    function showMessage(msg) {
-      msgDisplay.textContent = msg;
-      msgDisplay.style.color = getRandomColor();
-      setTimeout(() => {
-        if (msgDisplay.textContent === msg) msgDisplay.textContent = "";
-      }, 4000);
-    }
-
-    function getRandomColor() {
-      const colors = ["#ff5722", "#009688", "#4caf50", "#3f51b5", "#e91e63", "#ff9800"];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    // ==== Upgrades =====
-    function updateUpgrades() {
-      autoClickerBtn.disabled = score < cost.autoClicker || autoClicker;
-      multiplier2Btn.disabled = score < cost.multiplier2 || multiplier >= 2;
-      multiplier5Btn.disabled = score < cost.multiplier5 || multiplier >= 5;
-      autoSpeedBtn.disabled = score < cost.autoSpeed || !autoClicker;
-    }
-
-    autoClickerBtn.onclick = () => {
-      if (score >= cost.autoClicker && !autoClicker) {
-        score -= cost.autoClicker;
-        autoClicker = true;
-        showMessage("🤖 Auto‑Clicker Activated!");
-        startAutoClicker();
-        updateScoreDisplay();
-        updateUpgrades();
-        saveGame();
-      }
-    };
-
-    multiplier2Btn.onclick = () => {
-      if (score >= cost.multiplier2 && multiplier < 2) {
-        score -= cost.multiplier2;
-        multiplier = 2;
-        showMessage("💥 Multiplier ×2 Activated!");
-        updateScoreDisplay();
-        updateUpgrades();
-        saveGame();
-      }
-    };
-
-    multiplier5Btn.onclick = () => {
-      if (score >= cost.multiplier5 && multiplier < 5) {
-        score -= cost.multiplier5;
-        multiplier = 5;
-        showMessage("💥 Multiplier ×5 Activated!");
-        updateScoreDisplay();
-        updateUpgrades();
-        saveGame();
-      }
-    };
-
-    autoSpeedBtn.onclick = () => {
-      if (score >= cost.autoSpeed && autoClicker) {
-        score -= cost.autoSpeed;
-        autoClickRate += 1;  // increase speed by 1 click/sec
-        showMessage(`⏱ Auto Speed Increased to ${autoClickRate}/sec`);
-        if (autoClicker) startAutoClicker();
-        updateScoreDisplay();
-        updateUpgrades();
-        saveGame();
-      }
-    };
-
-    function startAutoClicker() {
-      if (autoClickInterval) clearInterval(autoClickInterval);
-      autoClickInterval = setInterval(() => {
-        score += clickPower * multiplier;
-        updateScoreDisplay();
-        checkAchievements();
-        saveGame();
-      }, 1000 / autoClickRate);
-    }
-
-    // ==== Achievements =====
-    function renderAchievements() {
-      // Clear existing
-      const existing = achContainer.querySelectorAll('.achiev');
-      existing.forEach(e => e.remove());
-
-      achievementsList.forEach(ach => {
-        const div = document.createElement('div');
-        div.className = 'achiev';
-        if (achievementsUnlocked[ach.id]) {
-          div.classList.add('unlocked');
-          div.textContent = `🏆 ${ach.name}`;
-        } else {
-          div.classList.add('locked');
-          div.textContent = `🔒 ${ach.name}`;
-        }
-        achContainer.appendChild(div);
-      });
-    }
-
-    function checkAchievements() {
-      if (!achievementsEnabled) return;
-      achievementsList.forEach(ach => {
-        if (!achievementsUnlocked[ach.id] && ach.condition(score)) {
-          achievementsUnlocked[ach.id] = true;
-          showMessage(`🎉 Achievement Unlocked: ${ach.name}`);
-          renderAchievements();
-          saveGame();
-        }
-      });
-    }
-
-    // ==== Theme toggle =====
-    themeToggle.onclick = () => {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('clickerThemeDark', document.body.classList.contains('dark'));
-    };
-
-    function loadTheme() {
-      const dark = localStorage.getItem('clickerThemeDark');
-      if (dark === 'true') document.body.classList.add('dark');
-    }
-
-    // ==== Admin Panel =====
-    function checkAdminCode() {
-      const code = document.getElementById("adminCodeInput").value;
-      if (code === "2812") {
-        document.getElementById("adminPanel").style.display = "block";
-        document.getElementById("adminPrompt").style.display = "none";
-        showMessage("🛠 Admin Panel Activated!");
-      } else {
-        showMessage("❌ Wrong Code");
-      }
-    }
-
-    function setClickPower() {
-      const val = parseInt(document.getElementById("clickPowerInput").value);
-      if (val > 0) {
-        clickPower = val;
-        showMessage(`✅ Click Power Set to ${val}`);
-        saveGame();
-      }
-    }
-
-    function setAutoClickRate() {
-      const val = parseInt(document.getElementById("autoCpsInput").value);
-      if (val > 0) {
-        autoClickRate = val;
-        showMessage(`⚙️ Auto‑Click Rate set to ${val}/sec`);
-        if (autoClicker) startAutoClicker();
-        saveGame();
-      }
-    }
-
-    function addScore() {
-      const val = parseInt(document.getElementById("addScoreInput").value);
-      if (!isNaN(val) && val > 0) {
-        score += val;
-        updateScoreDisplay();
-        checkAchievements();
-        showMessage(`🎁 Added ${val} points!`);
-        saveGame();
-      }
-    }
-
-    function resetGame() {
-      if (confirm("Are you sure you want to reset everything?")) {
-        score = 0;
-        multiplier = 1;
-        clickPower = 1;
-        autoClicker = false;
-        autoClickRate = 1;
-        achievementsUnlocked = {};
-        cost = {
-          autoClicker: 50,
-          multiplier2: 100,
-          multiplier5: 500,
-          autoSpeed: 200
-        };
-        if (autoClickInterval) clearInterval(autoClickInterval);
-        renderAchievements();
-        updateScoreDisplay();
-        updateUpgrades();
-        saveGame();
-        showMessage("🔄 Game Reset!");
-      }
-    }
-
-    function toggleAchievements() {
-      achievementsEnabled = !achievementsEnabled;
-      showMessage(`Achievements ${achievementsEnabled ? 'Enabled' : 'Disabled'}`);
-      saveGame();
-    }
-
-    function updateUpgradeCosts() {
-      const v1 = parseInt(document.getElementById("costAutoClickerInput").value);
-      const v2 = parseInt(document.getElementById("costMultiplier2Input").value);
-      const v3 = parseInt(document.getElementById("costMultiplier5Input").value);
-      const v4 = parseInt(document.getElementById("costAutoSpeedInput").value);
-      if (v1>0 && v2>0 && v3>0 && v4>0) {
-        cost.autoClicker = v1;
-        cost.multiplier2 = v2;
-        cost.multiplier5 = v3;
-        cost.autoSpeed = v4;
-        showMessage("🔧 Upgrade Costs Updated");
-        updateUpgrades();
-        saveGame();
-      }
-    }
-
-    // ==== Main Click Handler =====
-    btn.onclick = () => {
-      score += clickPower * multiplier;
-      updateScoreDisplay();
-      checkAchievements();
-      updateUpgrades();
-      saveGame();
-    };
-
-    // ==== Init =====
-    function init() {
-      loadGame();
-      loadTheme();
-      renderAchievements();
-      updateScoreDisplay();
-      updateUpgrades();
-      if (autoClicker) {
-        startAutoClicker();
-      }
-      // periodically autosave
-      setInterval(saveGame, 10000);
-    }
-
-    init();
-
-  </script>
-</body>
-</html>
+    //
