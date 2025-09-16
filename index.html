@@ -1,34 +1,68 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Clicker Game!!!</title>
   <style>
     body {
       text-align: center;
-      background-color: lightblue;
-      font-family: Comic Sans MS, cursive, sans-serif;
+      background: linear-gradient(to bottom right, #add8e6, #ffffff);
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     h1 {
-      font-size: 40px;
-      color: purple;
+      font-size: 48px;
+      color: #6a0dad;
+      margin-top: 30px;
     }
 
     #clickBtn {
-      padding: 20px 40px;
-      font-size: 20px;
-      background-color: hotpink;
+      padding: 20px 50px;
+      font-size: 24px;
+      background-color: #ff69b4;
       border: 3px solid black;
       cursor: pointer;
+      margin-top: 20px;
+      border-radius: 12px;
+      transition: transform 0.1s;
+    }
+
+    #clickBtn:active {
+      transform: scale(0.95);
     }
 
     #score {
-      font-size: 30px;
+      font-size: 32px;
       color: green;
       margin-top: 20px;
     }
 
+    .upgrade {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: gold;
+      cursor: pointer;
+    }
+
+    .upgrade:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+
+    #messages {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #333;
+      height: 24px;
+    }
+
     #footer {
-      margin-top: 40px;
+      margin-top: 60px;
       font-size: 14px;
       color: darkgray;
     }
@@ -36,30 +70,77 @@
 </head>
 <body>
 
-  <h1> CLICK THE BUTTON! </h1>
+  <h1>CLICK THE BUTTON!</h1>
 
   <button id="clickBtn">Click me!!!</button>
 
   <div id="score">Score: 0</div>
 
-  <div id="footer">Made by ollie </div>
+  <div id="messages"></div>
+
+  <button class="upgrade" id="autoClickerBtn" disabled>Buy Auto-Clicker (Cost: 50)</button>
+  <button class="upgrade" id="multiplierBtn" disabled>Buy Multiplier x2 (Cost: 100)</button>
+
+  <div id="footer">Made by Ollie 🚀</div>
 
   <script>
     let score = 0;
+    let multiplier = 1;
+    let autoClicker = false;
+
     const btn = document.getElementById("clickBtn");
     const scoreDisplay = document.getElementById("score");
+    const msgDisplay = document.getElementById("messages");
+    const autoClickerBtn = document.getElementById("autoClickerBtn");
+    const multiplierBtn = document.getElementById("multiplierBtn");
 
-    btn.onclick = function() {
-      score++;
+    function updateScore() {
       scoreDisplay.textContent = "Score: " + score;
+      updateUpgrades();
+    }
 
-      if (score === 10) {
-        alert("WOW! 10 CLICKS! ");
-      } else if (score === 50) {
-        alert("YOU'RE A LEGEND ");
+    function showMessage(msg) {
+      msgDisplay.textContent = msg;
+      setTimeout(() => msgDisplay.textContent = "", 3000);
+    }
+
+    btn.onclick = () => {
+      score += multiplier;
+      updateScore();
+
+      if (score === 10) showMessage("🔥 10 clicks! Keep going!");
+      if (score === 50) showMessage("🚀 LEGEND! You reached 50!");
+      if (score === 100) showMessage("👑 WOW! 100 CLICKS!");
+
+    };
+
+    function updateUpgrades() {
+      autoClickerBtn.disabled = score < 50 || autoClicker;
+      multiplierBtn.disabled = score < 100 || multiplier > 1;
+    }
+
+    autoClickerBtn.onclick = () => {
+      if (score >= 50 && !autoClicker) {
+        score -= 50;
+        autoClicker = true;
+        showMessage("🤖 Auto-Clicker Activated!");
+        updateScore();
+
+        setInterval(() => {
+          score += multiplier;
+          updateScore();
+        }, 1000);
+      }
+    };
+
+    multiplierBtn.onclick = () => {
+      if (score >= 100 && multiplier === 1) {
+        score -= 100;
+        multiplier = 2;
+        showMessage("💥 Multiplier x2 Activated!");
+        updateScore();
       }
     };
   </script>
-
 </body>
 </html>
