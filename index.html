@@ -2,39 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Clicker Game!!!</title>
+  <title>Ultimate Clicker Game</title>
   <style>
     body {
       text-align: center;
-      background: linear-gradient(to bottom right, #add8e6, #ffffff);
-      font-family: "Comic Sans MS", cursive, sans-serif;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
     }
 
     h1 {
       font-size: 48px;
-      color: #6a0dad;
+      color: #4b0082;
       margin-top: 30px;
+      text-shadow: 1px 1px 2px #aaa;
     }
 
     #clickBtn {
-      padding: 20px 50px;
-      font-size: 24px;
-      background-color: #ff69b4;
-      border: 3px solid black;
+      padding: 20px 60px;
+      font-size: 26px;
+      background: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 6px #b4004e;
       cursor: pointer;
       margin-top: 20px;
-      border-radius: 12px;
-      transition: transform 0.1s;
+      transition: all 0.2s ease-in-out;
     }
 
     #clickBtn:active {
-      transform: scale(0.95);
+      transform: scale(0.97);
+      box-shadow: 0 3px #b4004e;
     }
 
     #score {
-      font-size: 32px;
+      font-size: 34px;
       color: green;
       margin-top: 20px;
     }
@@ -42,23 +46,31 @@
     .upgrade {
       margin-top: 20px;
       font-size: 18px;
-      padding: 10px 20px;
+      padding: 12px 24px;
       border: none;
       border-radius: 10px;
       background-color: gold;
       cursor: pointer;
+      box-shadow: 0 4px #aa8800;
+      transition: transform 0.2s;
+    }
+
+    .upgrade:hover:not(:disabled) {
+      transform: scale(1.05);
     }
 
     .upgrade:disabled {
       background-color: gray;
+      box-shadow: none;
       cursor: not-allowed;
     }
 
     #messages {
       margin-top: 20px;
-      font-size: 20px;
-      color: #333;
-      height: 24px;
+      font-size: 22px;
+      color: #222;
+      height: 30px;
+      font-weight: bold;
     }
 
     #footer {
@@ -66,20 +78,59 @@
       font-size: 14px;
       color: darkgray;
     }
+
+    #adminPanel {
+      margin-top: 40px;
+      display: none;
+      border-top: 2px dashed #888;
+      padding-top: 20px;
+    }
+
+    .admin-input {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    .admin-label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
-
   <h1>CLICK THE BUTTON!</h1>
-
   <button id="clickBtn">Click me!!!</button>
-
   <div id="score">Score: 0</div>
-
   <div id="messages"></div>
 
   <button class="upgrade" id="autoClickerBtn" disabled>Buy Auto-Clicker (Cost: 50)</button>
   <button class="upgrade" id="multiplierBtn" disabled>Buy Multiplier x2 (Cost: 100)</button>
+
+  <div id="adminPrompt">
+    <p style="margin-top:40px;">Enter Admin Code:</p>
+    <input id="adminCodeInput" class="admin-input" placeholder="Enter code..." />
+    <button class="upgrade" onclick="checkAdminCode()">Enter</button>
+  </div>
+
+  <div id="adminPanel">
+    <h2>👑 Admin Panel</h2>
+    <div>
+      <label class="admin-label">Clicks Per Click:</label>
+      <input id="clickPowerInput" class="admin-input" type="number" value="1" min="1" />
+      <button class="upgrade" onclick="setClickPower()">Set</button>
+    </div>
+    <div>
+      <label class="admin-label">Auto Clicks Per Second:</label>
+      <input id="autoCpsInput" class="admin-input" type="number" value="1" min="1" />
+      <button class="upgrade" onclick="setAutoClickRate()">Set</button>
+    </div>
+    <div>
+      <label class="admin-label">Add Score:</label>
+      <input id="addScoreInput" class="admin-input" type="number" value="0" />
+      <button class="upgrade" onclick="addScore()">Add</button>
+    </div>
+  </div>
 
   <div id="footer">Made by Ollie 🚀</div>
 
@@ -87,6 +138,9 @@
     let score = 0;
     let multiplier = 1;
     let autoClicker = false;
+    let clickPower = 1;
+    let autoClickInterval;
+    let autoClickRate = 1; // times per second
 
     const btn = document.getElementById("clickBtn");
     const scoreDisplay = document.getElementById("score");
@@ -101,17 +155,22 @@
 
     function showMessage(msg) {
       msgDisplay.textContent = msg;
-      setTimeout(() => msgDisplay.textContent = "", 3000);
+      msgDisplay.style.color = getRandomColor();
+      setTimeout(() => msgDisplay.textContent = "", 4000);
+    }
+
+    function getRandomColor() {
+      const colors = ["#ff5722", "#009688", "#4caf50", "#3f51b5", "#e91e63"];
+      return colors[Math.floor(Math.random() * colors.length)];
     }
 
     btn.onclick = () => {
-      score += multiplier;
+      score += clickPower * multiplier;
       updateScore();
 
-      if (score === 10) showMessage("🔥 10 clicks! Keep going!");
-      if (score === 50) showMessage("🚀 LEGEND! You reached 50!");
-      if (score === 100) showMessage("👑 WOW! 100 CLICKS!");
-
+      if (score >= 10 && score < 15) showMessage("🔥 10 clicks! Keep going!");
+      if (score >= 50 && score < 60) showMessage("🚀 LEGEND! You reached 50!");
+      if (score >= 100 && score < 110) showMessage("👑 WOW! 100 CLICKS!");
     };
 
     function updateUpgrades() {
@@ -125,13 +184,17 @@
         autoClicker = true;
         showMessage("🤖 Auto-Clicker Activated!");
         updateScore();
-
-        setInterval(() => {
-          score += multiplier;
-          updateScore();
-        }, 1000);
+        startAutoClicker();
       }
     };
+
+    function startAutoClicker() {
+      if (autoClickInterval) clearInterval(autoClickInterval);
+      autoClickInterval = setInterval(() => {
+        score += clickPower * multiplier;
+        updateScore();
+      }, 1000 / autoClickRate);
+    }
 
     multiplierBtn.onclick = () => {
       if (score >= 100 && multiplier === 1) {
@@ -141,6 +204,46 @@
         updateScore();
       }
     };
+
+    // Admin features
+    function checkAdminCode() {
+      const code = document.getElementById("adminCodeInput").value;
+      if (code === "2812") {
+        document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("adminPrompt").style.display = "none";
+        showMessage("🛠 Admin Panel Activated!");
+      } else {
+        showMessage("❌ Wrong Code");
+      }
+    }
+
+    function setClickPower() {
+      const power = parseInt(document.getElementById("clickPowerInput").value);
+      if (power > 0) {
+        clickPower = power;
+        showMessage(`✅ Click Power Set to ${power}`);
+      }
+    }
+
+    function setAutoClickRate() {
+      const cps = parseInt(document.getElementById("autoCpsInput").value);
+      if (cps > 0) {
+        autoClickRate = cps;
+        showMessage(`⚙️ Auto-Click Rate set to ${cps}/sec`);
+        if (autoClicker) startAutoClicker();
+      }
+    }
+
+    function addScore() {
+      const add = parseInt(document.getElementById("addScoreInput").value);
+      if (!isNaN(add)) {
+        score += add;
+        updateScore();
+        showMessage(`🎁 Added ${add} points!`);
+      }
+    }
+
+    updateScore();
   </script>
 </body>
 </html>
